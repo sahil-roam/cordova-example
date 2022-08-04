@@ -21,6 +21,7 @@
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
 document.addEventListener('deviceready', onDeviceReady, false);
 document.getElementById('createUser').addEventListener('click', createUser)
+document.getElementById('requestPermission').addEventListener('click', requestPermission)
 document.getElementById('startTracking').addEventListener('click', startTracking)
 document.getElementById('stopTracking').addEventListener('click', stopTracking)
 
@@ -33,7 +34,9 @@ function onDeviceReady() {
 
 }
 
-
+function requestPermission() {
+    cordova.plugins.roam.requestLocationPermission();
+}
 
 function createUser() {
     cordova.plugins.roam.createUser("SET-USER-DESCRIPTION-HERE", function(success){
@@ -43,6 +46,7 @@ function createUser() {
 
         cordova.plugins.roam.offlineLocationTracking(true);
         cordova.plugins.roam.allowMockLocation(true);
+        cordova.plugins.roam.setForegroundNotification(true, "Roam Example", "Tap to open", "mipmap/ic_launcher", "com.roam.example.MainActivity")
 
         cordova.plugins.roam.toggleListener(true, true, function(success){
             
@@ -69,14 +73,23 @@ function createUser() {
       });
 }
 
-function startTracking() {
 
-    cordova.plugins.roam.publishAndSave(null);
+function startTracking() {
+    
+  cordova.plugins.roam.setForegroundNotification(true, "Roam Example", "Tap to open", "mipmap/ic_launcher", "com.roam.example.MainActivity")
+  cordova.plugins.roam.publishAndSave(null);
     //Update location based on time interval.
-    cordova.plugins.roam.startTracking('ACTIVE');
+    cordova.plugins.roam.onLocation((location) => {
+      // do something on location received
+      document.getElementById('location').innerHTML = location;
+    });
+    cordova.plugins.roam.startTrackingTimeInterval(5, "HIGH");
+
 }
 
 function stopTracking() {
+  cordova.plugins.roam.setForegroundNotification(false, "Roam Example", "Tap to open", "mipmap/ic_launcher", "com.roam.example.MainActivity")
+    cordova.plugins.roam.offLocation();
     cordova.plugins.roam.stopTracking();
 }
 
