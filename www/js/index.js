@@ -20,10 +20,11 @@
 // Wait for the deviceready event before using any of Cordova's device APIs.
 // See https://cordova.apache.org/docs/en/latest/cordova/events/events.html#deviceready
 document.addEventListener('deviceready', onDeviceReady, false);
-document.getElementById('createUser').addEventListener('click', createUser)
+document.getElementById('backgroundPermission').addEventListener('click', requestBackgroundLocationPermission)
 document.getElementById('requestPermission').addEventListener('click', requestPermission)
 document.getElementById('startTracking').addEventListener('click', startTracking)
 document.getElementById('stopTracking').addEventListener('click', stopTracking)
+document.getElementById('batteryOptimization').addEventListener('click', disableBatteryOpt)
 
 function onDeviceReady() {
     // Cordova is now initialized. Have fun!
@@ -38,50 +39,56 @@ function requestPermission() {
     cordova.plugins.roam.requestLocationPermission();
 }
 
-function createUser() {
-    cordova.plugins.roam.createUser("SET-USER-DESCRIPTION-HERE", function(success){
-        // do something on success
-        console.log(success);
-        document.getElementById('response').innerHTML = success;
-
-        cordova.plugins.roam.offlineLocationTracking(true);
-        cordova.plugins.roam.allowMockLocation(true);
-        cordova.plugins.roam.setForegroundNotification(true, "Roam Example", "Tap to open", "mipmap/ic_launcher", "com.roam.example.MainActivity")
-
-        cordova.plugins.roam.toggleListener(true, true, function(success){
-            
-            // do something on success
-            console.log(success);
-            document.getElementById('response').innerHTML = success;
-            var userResponse = JSON.parse(success)
-            cordova.plugins.roam.subscribe('LOCATION', userResponse.userId);
-
-          }, function(error){
-            
-            // do something on error
-            console.log(error);
-            document.getElementById('response').innerHTML = error;
-
-          });
-
-      }, function(error){
-        
-        // do something on error
-        console.log(error);
-        document.getElementById('response').innerHTML = error;
-
-      });
+function requestBackgroundLocationPermission(){
+  cordova.plugins.roam.requestBackgroundLocationPermission();
 }
+
+// function createUser() {
+//     cordova.plugins.roam.createUser("SET-USER-DESCRIPTION-HERE", function(success){
+//         // do something on success
+//         console.log(success);
+//         document.getElementById('response').innerHTML = success;
+
+//         cordova.plugins.roam.offlineLocationTracking(true);
+//         cordova.plugins.roam.allowMockLocation(true);
+//         cordova.plugins.roam.setForegroundNotification(true, "Roam Example", "Tap to open", "mipmap/ic_launcher", "com.roam.example.MainActivity")
+
+//         cordova.plugins.roam.toggleListener(true, true, function(success){
+            
+//             // do something on success
+//             console.log(success);
+//             document.getElementById('response').innerHTML = success;
+//             var userResponse = JSON.parse(success)
+//             cordova.plugins.roam.subscribe('LOCATION', userResponse.userId);
+
+//           }, function(error){
+            
+//             // do something on error
+//             console.log(error);
+//             document.getElementById('response').innerHTML = error;
+
+//           });
+
+//       }, function(error){
+        
+//         // do something on error
+//         console.log(error);
+//         document.getElementById('response').innerHTML = error;
+
+//       });
+// }
 
 
 function startTracking() {
     
   cordova.plugins.roam.setForegroundNotification(true, "Roam Example", "Tap to open", "mipmap/ic_launcher", "com.roam.example.MainActivity")
-  cordova.plugins.roam.publishAndSave(null);
+  //cordova.plugins.roam.publishAndSave(null);
     //Update location based on time interval.
     cordova.plugins.roam.onLocation((location) => {
       // do something on location received
+      console.log(JSON.stringify(location));
       document.getElementById('location').innerHTML = location;
+      
     });
     cordova.plugins.roam.startTrackingTimeInterval(5, "HIGH");
 
@@ -93,4 +100,6 @@ function stopTracking() {
     cordova.plugins.roam.stopTracking();
 }
 
-
+function disableBatteryOpt(){
+  cordova.plugins.roam.disableBatteryOptimization();
+}
